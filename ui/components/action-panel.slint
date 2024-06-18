@@ -1,0 +1,36 @@
+
+
+import { Button } from "std-widgets.slint";
+export component ActionPanel inherits Rectangle {
+    callback refresh_containers();
+    height: 30px;
+    HorizontalLayout {
+        alignment: start;
+        height: root.height;
+        spacing: 10px;
+        VerticalLayout {
+            alignment: center;
+            width: root.height;
+            Image {
+                source: @image-url("../assets/svgrepo/docker-svgrepo-com.svg");
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            Text {
+                text: "Docker UI";
+                font-size: 18px;
+                horizontal-alignment: center;
+                font-weight: 600;
+            }
+        }
+        Button {
+            height: root.height;
+            text: "Refresh";
+            icon: @image-url("../assets/lucide/refresh-ccw.svg");
+            clicked => {
+                root.refresh_containers();
+            }
+        }
+    }
+}

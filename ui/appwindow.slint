@@ -1,40 +1,26 @@
 import { Button, VerticalBox, HorizontalBox, ListView, ScrollView } from "std-widgets.slint";
 import { ContainerData, ContainerAction, ContainerStatus } from "./types.slint";
-import { ContainerItem } from "./container-item.slint";
+import { ContainerItem } from "./components/container-item.slint";
+import { ActionPanel } from "./components/action-panel.slint";
 
 export component AppWindow inherits Window {
-    min-width: 600px;
-    min-height: 400px;
     title: "Docker UI";
-    in-out property <[ContainerData]> containers: [
-        {
-            id: "123456789012345678901234",
-            short_id: "123456",
-            name: "test",
-            status: ContainerStatus.Running,
-        }
-    ];
+    in-out property <[ContainerData]> containers: [];
     callback refresh_containers();
     callback run_container(string);
     callback stop_container(string);
     HorizontalBox {
         VerticalBox {
-            HorizontalBox {
-                alignment: start;
-                height: 50px;
-                Text {
-                    text: "Docker UI";
-                    font-size: 16px;
-                    horizontal-alignment: center;
-                }
-                Button {
-                    text: "Refresh";
-                    clicked => {
-                        root.refresh_containers();
-                    }
+            ActionPanel {
+                refresh_containers => {
+                    root.refresh_containers();
                 }
             }
-            VerticalLayout {
+            Rectangle {
+                height: 10px;
+            }
+            if containers.length > 0: VerticalLayout {
+                min-height: 300px;
                 spacing: 5px;
                 for c in containers: ContainerItem {
                     height: 50px;
@@ -50,6 +36,13 @@ export component AppWindow inherits Window {
                             return;
                         }
                     }
+                }
+            }
+            if containers.length == 0: HorizontalLayout {
+                alignment: center;
+                Text {
+                    padding: 20px;
+                    text: "No containers found";
                 }
             }
         }

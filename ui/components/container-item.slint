@@ -1,0 +1,56 @@
+import { VerticalBox, Button } from "std-widgets.slint";
+import { ContainerData, ContainerAction, ContainerStatus } from "../types.slint";
+
+export component ContainerItem inherits Rectangle {
+    in-out property <ContainerData> data;
+    callback status_change(ContainerAction);
+    border-radius: 5px;
+    background: #ffffff;
+    min-width: 500px;
+    VerticalLayout {
+        alignment: center;
+        height: parent.height;
+        padding-left: 10px;
+        padding-right: 10px;
+        HorizontalLayout {
+            VerticalBox {
+                alignment: center;
+                Image {
+                    width: 25px;
+                    height: 25px;
+                    source: @image-url("../assets/svgrepo/container-svgrepo-com.svg");
+                }
+            }
+            VerticalBox {
+                alignment: center;
+                Text {
+                    font-weight: 700;
+                    text: data.short-id;
+                }
+            }
+            VerticalBox {
+                alignment: center;
+                Text {
+                    font-weight: 700;
+                    text: data.name;
+                }
+            }
+            if data.status == ContainerStatus.Running: Button {
+                width: 100px;
+                text: "Stop";
+                icon: @image-url("../assets/lucide/circle-stop.svg");
+                clicked => {
+                    root.status_change(ContainerAction.Stop);
+                }
+            }
+            if data.status == ContainerStatus.Exited: Button {
+                width: 100px;
+                text: "Start";
+                icon: @image-url("../assets/lucide/circle-play.svg");
+                clicked => {
+                    root.status_change(ContainerAction.Start);
+                }
+            }
+        }
+    }
+}
