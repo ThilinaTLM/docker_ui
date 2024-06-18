@@ -1,58 +1,19 @@
 import { Button, VerticalBox, HorizontalBox, ListView, ScrollView } from "std-widgets.slint";
-
-enum ContainerStatus {
-    Running,
-    Exited,
-    Unknown,
-}
-
-enum ContainerAction {
-    Start,
-    Stop,
-}
-
-struct ContainerData {
-    id: string,
-    name: string,
-    status: ContainerStatus,
-}
-
-component ContainerItem {
-    in-out property <ContainerData> data;
-    callback status_change(ContainerAction);
-    Rectangle {
-        background: #c2c2c2;
-        VerticalLayout {
-            alignment: center;
-            HorizontalBox {
-                Text {
-                    text: data.id;
-                }
-                Text {
-                    text: data.name;
-                }
-                if data.status == ContainerStatus.Running: Button {
-                    text: "Stop";
-                    clicked => {
-                        root.status_change(ContainerAction.Stop);
-                    }
-                }
-                if data.status == ContainerStatus.Exited: Button {
-                    text: "Start";
-                    clicked => {
-                        root.status_change(ContainerAction.Start);
-                    }
-                }
-            }
-        }
-    }
-}
+import { ContainerData, ContainerAction, ContainerStatus } from "./types.slint";
+import { ContainerItem } from "./container-item.slint";
 
 export component AppWindow inherits Window {
     min-width: 600px;
     min-height: 400px;
     title: "Docker UI";
-    in-out property <[ContainerData]> containers: [];
+    in-out property <[ContainerData]> containers: [
+        {
+            id: "123456789012345678901234",
+            short_id: "123456",
+            name: "test",
+            status: ContainerStatus.Running,
+        }
+    ];
     callback refresh_containers();
     callback run_container(string);
     callback stop_container(string);
@@ -73,9 +34,10 @@ export component AppWindow inherits Window {
                     }
                 }
             }
-            VerticalBox {
-                height: 100px;
+            VerticalLayout {
+                spacing: 5px;
                 for c in containers: ContainerItem {
+                    height: 50px;
                     data: c;
                     status_change(action) => {
                         if action == ContainerAction.Start {

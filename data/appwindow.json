@@ -1,0 +1,22 @@
+{
+    "containers": [
+        {
+            "id": "1234567890abcdef1234567890abcdef12345678",
+            "short-id": "12345678",
+            "name": "container_one",
+            "status": "Running"
+        },
+        {
+            "id": "abcdef1234567890abcdef1234567890abcdef12",
+            "short-id": "abcdef12",
+            "name": "container_two",
+            "status": "Exited"
+        },
+        {
+            "id": "7890abcdef1234567890abcdef1234567890abcd",
+            "short-id": "7890abcd",
+            "name": "container_three",
+            "status": "Exited"
+        }
+    ]    
+}

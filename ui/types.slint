@@ -1,0 +1,17 @@
+export enum ContainerStatus {
+    Running,
+    Exited,
+    Unknown,
+}
+
+export enum ContainerAction {
+    Start,
+    Stop,
+}
+
+export struct ContainerData {
+    id: string,
+    short_id: string,
+    name: string,
+    status: ContainerStatus,
+}

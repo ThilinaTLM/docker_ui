@@ -1,4 +1,5 @@
 use bollard::container::{ListContainersOptions, StartContainerOptions, StopContainerOptions};
+use bollard::secret::ContainerSummary;
 use bollard::Docker;
 use tokio::runtime::Runtime;
 
@@ -14,6 +15,21 @@ impl From<String> for ContainerStatus {
     }
 }
 
+impl From<ContainerSummary> for ContainerData {
+    fn from(value: ContainerSummary) -> Self {
+        let container_id = value.id.unwrap_or_default();
+        let short_id = container_id.chars().take(12).collect::<String>();
+        let name = value.names.unwrap_or_default().join(", ");
+        let name = name.trim_start_matches('/');
+        return ContainerData {
+            id: container_id.into(),
+            short_id: short_id.into(),
+            name: name.into(),
+            status: value.state.unwrap_or_default().into(),
+        }
+    }
+}
+
 async fn get_docker_containers() -> Vec<ContainerData> {
     let docker = Docker::connect_with_local_defaults().unwrap();
     let options = Some(ListContainersOptions::<String> {
@@ -21,15 +37,7 @@ async fn get_docker_containers() -> Vec<ContainerData> {
         ..Default::default()
     });
     let containers = docker.list_containers(options).await.unwrap();
-
-    containers
-        .into_iter()
-        .map(|container| ContainerData {
-            id: container.id.unwrap_or_default().into(),
-            name: container.names.unwrap_or_default().join(", ").into(),
-            status: container.state.unwrap_or_default().into(),
-        })
-        .collect()
+    containers.into_iter().map(ContainerData::from).collect()
 }
 
 async fn run_container(container_id: String) {
@@ -50,8 +58,8 @@ async fn stop_container(container_id: String) {
 
 fn main() -> Result<(), slint::PlatformError> {
     let ui = AppWindow::new()?;
+    
     let ui_weak = ui.as_weak();
-
     ui.on_refresh_containers(move || {
         let runtime = Runtime::new().unwrap();
         let containers: Vec<ContainerData> = runtime.block_on(get_docker_containers());
@@ -70,6 +78,12 @@ fn main() -> Result<(), slint::PlatformError> {
         let runtime = Runtime::new().unwrap();
         println!("Stopping container {}", id);
         runtime.block_on(stop_container(id.into()));
+    });
+
+    let ui_weak = ui.as_weak();
+    slint::Timer::single_shot(std::time::Duration::from_secs(1), move || {
+        let ui = ui_weak.upgrade().unwrap();
+        ui.invoke_refresh_containers()
     });
 
     ui.run()
