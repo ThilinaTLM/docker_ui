@@ -2,8 +2,10 @@ use bollard::container::{ListContainersOptions, StartContainerOptions, StopConta
 use bollard::secret::ContainerSummary;
 use bollard::Docker;
 use tokio::runtime::Runtime;
+use env_logger;
 
 slint::include_modules!();
+
 
 impl From<String> for ContainerStatus {
     fn from(status: String) -> Self {
@@ -57,6 +59,7 @@ async fn stop_container(container_id: String) {
 }
 
 fn main() -> Result<(), slint::PlatformError> {
+    env_logger::init();
     let ui = AppWindow::new()?;
     
     let ui_weak = ui.as_weak();
@@ -81,9 +84,11 @@ fn main() -> Result<(), slint::PlatformError> {
     });
 
     let ui_weak = ui.as_weak();
-    slint::Timer::single_shot(std::time::Duration::from_secs(1), move || {
+    let timer = slint::Timer::default();
+    timer.start(slint::TimerMode::Repeated, std::time::Duration::from_secs(1), move || {
         let ui = ui_weak.upgrade().unwrap();
-        ui.invoke_refresh_containers()
+        ui.invoke_refresh_containers();
+        log::info!("refreshing containers complete.");
     });
 
     ui.run()
