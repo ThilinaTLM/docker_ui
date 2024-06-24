@@ -46,7 +46,7 @@ async fn run_container(container_id: String) {
     let docker = Docker::connect_with_local_defaults().unwrap();
     let options = StartContainerOptions::<String>::default();
     if let Err(e) = docker.start_container(&container_id, Some(options)).await {
-        eprintln!("Failed to start container {}: {}", container_id, e);
+        log::error!("Failed to stop container {}: {}", container_id, e);
     }
 }
 
@@ -54,7 +54,7 @@ async fn stop_container(container_id: String) {
     let docker = Docker::connect_with_local_defaults().unwrap();
     let options = StopContainerOptions { t: 10 };
     if let Err(e) = docker.stop_container(&container_id, Some(options)).await {
-        eprintln!("Failed to stop container {}: {}", container_id, e);
+        log::error!("Failed to stop container {}: {}", container_id, e);
     }
 }
 
@@ -73,13 +73,13 @@ fn main() -> Result<(), slint::PlatformError> {
 
     ui.on_run_container(move |id| {
         let runtime = Runtime::new().unwrap();
-        println!("Running container {}", id);
+        log::info!("Running container {}", id);
         runtime.block_on(run_container(id.into()));
     });
 
     ui.on_stop_container(move |id| {
         let runtime = Runtime::new().unwrap();
-        println!("Stopping container {}", id);
+        log::info!("Stopping container {}", id);
         runtime.block_on(stop_container(id.into()));
     });
 
